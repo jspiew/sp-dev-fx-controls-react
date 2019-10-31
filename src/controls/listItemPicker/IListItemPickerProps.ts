@@ -14,6 +14,7 @@ export interface IListItemPickerProps {
   disabled?: boolean;
   suggestionsHeaderText?:string;
   noResultsFoundText?:string;
+  preloadedItemsCount?: number;
 
   onSelectedItem: (item:any) => void;
 }

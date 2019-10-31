@@ -5,6 +5,7 @@ import { ICultureInfo } from './SPEntities';
  */
 export const LoadedViewFieldsKey: string = 'LBLoadedViewFields';
 
+export const ListViewThreshold: number = 5000;
 
 /**
  * Mapping between current field name and the name of the real field that contains the data
@@ -97,7 +98,7 @@ export const InvariantCulture: ICultureInfo = {
         TimeSeparator: ':',
         UniversalSortableDateTimePattern: 'yyyy\'-\'MM\'-\'dd HH\':\'mm\':\'ss\'Z\'',
         YearMonthPattern: 'yyyy MMMM',
-        AbbreviatedDayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], 
+        AbbreviatedDayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         ShortestDayNames: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
         DayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         AbbreviatedMonthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', ''],

@@ -3,4 +3,5 @@ export interface IListItemPickerState {
   showError: boolean;
   errorMessage: string;
   suggestionsHeaderText:string;
+  preloadedItems: { key: string; name: string }[];
 }

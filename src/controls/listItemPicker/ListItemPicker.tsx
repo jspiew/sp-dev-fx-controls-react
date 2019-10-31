@@ -6,6 +6,7 @@ import { TagPicker } from "office-ui-fabric-react/lib/components/pickers/TagPick
 import { Label } from "office-ui-fabric-react/lib/Label";
 import { IListItemPickerProps, IListItemPickerState } from ".";
 import * as telemetry from '../../common/telemetry';
+import { ListViewThreshold } from '../../Common';
 
 
 export class ListItemPicker extends React.Component<IListItemPickerProps, IListItemPickerState> {
@@ -22,13 +23,24 @@ export class ListItemPicker extends React.Component<IListItemPickerProps, IListI
       noresultsFoundText: !this.props.noResultsFoundText ? strings.genericNoResultsFoundText : this.props.noResultsFoundText,
       showError: false,
       errorMessage: "",
-      suggestionsHeaderText: !this.props.suggestionsHeaderText ? strings.ListItemPickerSelectValue : this.props.suggestionsHeaderText
+      suggestionsHeaderText: !this.props.suggestionsHeaderText ? strings.ListItemPickerSelectValue : this.props.suggestionsHeaderText,
+      preloadedItems: []
     };
 
     // Get SPService Factory
     this._spservice = new SPservice(this.props.context);
 
     this.selectedItems = [];
+  }
+
+  public componentDidMount() {
+    if (this.props.preloadedItemsCount){
+      this.loadListItems('', this.props.preloadedItemsCount).then((data)=> {
+        this.setState({
+          preloadedItems: data
+        })
+      })
+    }
   }
 
   public componentDidUpdate(prevProps: IListItemPickerProps, prevState: IListItemPickerState): void {
@@ -52,6 +64,7 @@ export class ListItemPicker extends React.Component<IListItemPickerProps, IListI
                      suggestionsHeaderText: this.state.suggestionsHeaderText,
                      noResultsFoundText: this.state.noresultsFoundText
                    }}
+                   onEmptyInputFocus= {this.onEmptyInputFocus}
                    defaultSelectedItems={this.props.defaultSelectedItems || []}
                    onChange={this.onItemChanged}
                    className={className}
@@ -109,15 +122,34 @@ export class ListItemPicker extends React.Component<IListItemPickerProps, IListI
   }
 
   /**
+   * On Empty Input Focus
+   */
+  private onEmptyInputFocus = (selectedTags: { key: string; name: string }[]) => {
+
+
+    // Filter out the already retrieved items, so that they cannot be selected again
+    if (selectedTags && selectedTags.length > 0) {
+      let filteredTags = [];
+      for (const tag of this.state.preloadedItems) {
+        const exists = selectedTags.filter(sItem => sItem.key === tag.key);
+        if (!exists || exists.length === 0) {
+          filteredTags.push(tag);
+        }
+      }
+      return filteredTags || [];
+    }
+  }
+
+  /**
    * Function to load List Items
    */
-  private loadListItems = async (filterText: string): Promise<{ key: string; name: string }[]> => {
+  private loadListItems = async (filterText: string, top?: number): Promise<{ key: string; name: string }[]> => {
     let { listId, columnInternalName, keyColumnInternalName, webUrl } = this.props;
     let arrayItems: { key: string; name: string }[] = [];
     let keyColumn: string = keyColumnInternalName || 'Id';
 
     try {
-      let listItems = await this._spservice.getListItems(filterText, listId, columnInternalName, keyColumn, webUrl);
+      let listItems = await this._spservice.getListItems(filterText, listId, columnInternalName, keyColumn, top || ListViewThreshold, webUrl);
       // Check if the list had items
       if (listItems.length > 0) {
         for (const item of listItems) {
